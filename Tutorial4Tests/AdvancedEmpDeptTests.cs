@@ -107,8 +107,8 @@ public class AdvancedEmpDeptTests
     {
         var emps = Database.GetEmps();
 
-        var result = emps.Select(emp => new { emp.EName, Total = emp.Comm + emp.Sal }); 
-        
+        var result = emps.Select(emp => new { emp.EName, Total = (emp.Comm ?? 0) + emp.Sal });
+
         Assert.Contains(result, r => r.EName == "ALLEN" && r.Total == 1900);
     }
 
@@ -121,7 +121,12 @@ public class AdvancedEmpDeptTests
         var depts = Database.GetDepts();
         var grades = Database.GetSalgrades();
 
-        var result = emps.GroupJoin(); 
+        var result = emps
+            .Join(depts, emp => emp.DeptNo, dept => dept.DeptNo, (emp, dept) => new { emp, dept })
+            .SelectMany(emp => grades
+                .Where(grade => emp.emp.Sal >= grade.Losal && emp.emp.Sal <= grade.Hisal)
+                .Select(grade => new { emp.emp.EName, emp.dept.DName, grade.Grade }));
+
 
         Assert.Contains(result, r => r.EName == "ALLEN" && r.DName == "SALES" && r.Grade == 3);
     }
