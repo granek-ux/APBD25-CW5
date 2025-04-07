@@ -101,11 +101,11 @@ public class EmpDeptSalgradeTests
     {
         var emps = Database.GetEmps();
         var grades = Database.GetSalgrades();
-
+        
         // var result = emps
-            // .Join(grades, emp => emp.Sal, salgrade => salgrade, (emp, salgrade) => new { emp, salgrade }   )
-            // .Where(both => both.emp.Sal >= both.salgrade.Losal && both.emp.Sal <= both.salgrade.Hisal )
-            // .Select(both => new {both.emp.EName, both.salgrade.Grade});
+        // .Join(grades, emp => emp.Sal, salgrade => salgrade, (emp, salgrade) => new { emp, salgrade }   )
+        // .Where(both => both.emp.Sal >= both.salgrade.Losal && both.emp.Sal <= both.salgrade.Hisal )
+        // .Select(both => new {both.emp.EName, both.salgrade.Grade});
         
         // Assert.Contains(result, r => r.EName == "ALLEN" && r.Grade == 3);
     }
@@ -117,7 +117,7 @@ public class EmpDeptSalgradeTests
     {
         var emps = Database.GetEmps();
 
-        var result = emps.GroupBy(emp => emp.DeptNo ).Select( emp => new {  }); 
+        var result = emps.GroupBy(emp => emp.DeptNo ).Select( emp => new {DeptNo = emp.Key, AvgSal = emp.Average(emp => emp.Sal)  }); 
         
         Assert.Contains(result, r => r.DeptNo == 30 && r.AvgSal > 1000);
     }
@@ -129,8 +129,8 @@ public class EmpDeptSalgradeTests
     {
         var emps = Database.GetEmps();
 
-        // var result = null; 
-        //
-        // Assert.Contains("ALLEN", result);
+        var result = emps.Where(emp => emp.Sal > emps.Where(emp2 => emp2.DeptNo == emp.DeptNo).Average(emp2 => emp2.Sal)).Select(emp => emp.EName); 
+        
+        Assert.Contains("ALLEN", result);
     }
 }
